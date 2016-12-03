@@ -1,0 +1,16 @@
+{
+  "name": "liveradio",
+  "version": "1.0.0",
+  "description": "Interact with multi users thru different devices with using node.js",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eric",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.0",
+    "socket.io": "^1.5.1"
+  },
+  "devDependencies": {}
+}

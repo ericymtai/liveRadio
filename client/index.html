@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Live Radio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="/style.css">
+    <script src="https://apis.google.com/js/client.js?onload=onClientLoad" type="text/javascript"></script>
+</head>
+
+<body>
+    <div id="video-placeholder"></div>
+    <div id="background-fill"></div>
+
+    <aside id="queue-container">
+
+        <h2>Song List for Vote
+        <span style="font-size:17px;">Choose your like or dislike:  </span>
+        </h2>
+        <div id="queue">
+            <!-- <div>
+                <img src="/img/album-art.png" />
+                <img class="skip-button" src="/img/skip.svg">
+                <h3>
+                    Test Title
+                </h3>
+                <h4>
+                    Test Artist and Album
+                </h4>
+            </div> -->
+        </div>
+
+
+
+        <h2>Search A Song
+        <span>You want to listen next:  </span>
+        </h2>
+
+        <form id="search-form">
+            <input type="text" id="search-field" id="search-field" name="search-field" placeholder="&#128269;  Song Title..." autofocus>
+            <input type="submit" id="submit" value="Submit" style="display: none;">
+        </form>
+
+        <div id="search-container">
+            <!-- <div>
+                <img src="/img/album-art.png" />
+                <img class="queue-button" src="/img/sign.svg">
+                <h4>
+                    Test Title now la howdy
+                </h4>
+            </div> -->
+        </div>
+    </aside>
+
+    <main id="player-container">
+       <h1>LiveRadio</h1>
+        <div id="record-container">
+            <img src="/img/record.png" id="record" />
+            <img src="/img/album-art.jpeg" id="album-art" />
+        </div>
+        <img src="/img/needle.png" id="needle" />
+    </main>
+
+
+    <div id="playback-bar">
+        <h3 id="current-title">
+            Current Play List:
+        </h3>
+        <!-- <h2 id="current-detail">
+            Test
+        </h2> -->
+    </div>
+
+
+    <aside id="chat-container">
+        <h2>
+            Status
+        </h2>
+        <div id="chat">
+
+        </div>
+    </aside>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="/search.js" type="text/javascript"></script>
+    <script src="https://apis.google.com/js/client.js?onload=onClientLoad" type="text/javascript"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script type="text/javascript">
+        var player;
+        var iframeReady = false;
+        var dataReady = false;
+
+        var socket = io();
+        var albumArt = $('#album-art');
+        var searchField = $('#search-field');
+
+        socket.on('request', queueSong(songInfo));
+
+        function onYouTubeIframeAPIReady() {
+            iframeReady = true;
+            if (iframeReady == true && dataReady == true){
+                createPlayer();
+            } else {
+                console.warn(iframeReady + ', ' + dataReady);
+            }
+        }
+
+        function createPlayer(){
+            player = new YT.Player('video-placeholder', {
+                width: 600,
+                height: 400,
+                // videoId: '217JOBWTolg',
+                playerVars: {
+                    color: 'white'
+                },
+                events: {
+                    onReady: initialize()
+                }
+            });
+        }
+
+        function initialize(){
+        setTimeout(function(){
+            console.log(player)
+
+            player.playVideo();
+        }, 3500);
+
+        }
+
+
+        function checkQueue (){
+            setTimeout(function(){
+                var current;
+                console.log('checking queue');
+                console.log($('#queue').children()[0].id);
+
+
+                if (player.getCurrentTime() >= (player.getDuration() - 5)){
+                    current = $('#queue').children()[0];
+                    console.warn($('#queue').children()[0]);
+                    player.cueVideoById(current.id);
+                    setTimeout(function(){
+                        if ($('#queue').children()[0].id == current.id) {
+                        current.remove();
+                        }
+                    }, 2500)
+                    player.playVideo();
+                    setTimeout(function(){
+                        swap();
+                    },100)
+
+                } else {
+                    console.log(player.getCurrentTime() + ', ' + player.getDuration());
+                }
+                console.log()
+
+                checkQueue();
+
+            }, 2500)
+        }
+
+
+        function swap (){
+            $('#record-container').removeClass('spin');
+            $('#record-container').addClass('swap');
+            setTimeout(function() {
+                $('#record-container').removeClass('swap');
+                $('#record-container').addClass('spin');
+            }, 4000);
+        }
+
+        function skip (){
+            player.seekTo(player.getDuration - 5);
+        }
+
+        // $("li").click(function(event) {
+        //     console.log(event.target.id);
+        //     socket.emit('hero', event.target.id);
+
+        //     return false;
+        // });
+
+        //Change song and load it when called
+                // function play(current){
+                //     //Current var is the song name which will be used to display and find the file. change the string in this variable before suggest() is called for a different song
+                //     player.attr('src', current + ".mp3");
+                //     player.load();
+                //     albumArt.attr('src', "album-art.jpeg");
+                //     player.play();
+                //     return current;
+                // };
+                // search();
+    </script>
+</body>
+
+</html>
