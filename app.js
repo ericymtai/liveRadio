@@ -21,7 +21,7 @@ io.on('connection', function (socket) {
     console.log('a user connected');
 
     socket.on('request', function (songMeta) {
-    	io.emit('request', songMeta);
+      io.emit('request', songMeta);
        console.log(songMeta);
       // console.log("the song name is:" + songInfo[2]);
       //console.log("the song name is: %j" + songInfo);
@@ -45,20 +45,22 @@ server.listen(process.env.PORT || 8000, process.env.IP || "0.0.0.0", function ()
 
 // Load and combine all the files as a giant one
 function loadResults(songMeta) {
-    console.log("the song name is:" + songMeta.title);
-    console.log("the song image url:" + songMeta.imgSrc);
+    console.log("the song name is: " + songMeta.title);
+    console.log("the song image url is: " + songMeta.imgSrc);
+    console.log("the song ID is: " + songMeta.songId);
 
-    var songJson = JSON.stringify(songMeta);
-    console.log(songJson);
-      // fileList = songInfo;
-        // console.log(fileList[0]);
-        // for (var i = 0, i < 2; i+2) {
+    var fileList = JSON.stringify(songMeta);
+    console.log(fileList);
+
+      // fileList = songJson;
+
+
+        for (var i = 0, length = fileList.length; i < length; i++) {
             //This loop will read through all of the elements of an array
-            // var myFile = fs.readFileSync(songInfo[i] );
-            // var myFile = fs.readFileSync(songInfo);
-            // myFile = JSON.parse(songInfo);
-            // playList.push(myFile);
-        // }
+            var myFile = fs.readFileSync(fileList);
+            myFile = JSON.parse(myFile);
+            playList.push(myFile);
+        }
         // saveFile();
         // console.log("playList");
 }

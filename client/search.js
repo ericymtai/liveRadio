@@ -1,5 +1,4 @@
 
-
 // Your use of the YouTube API must comply with the Terms of Service:
 // https://developers.google.com/youtube/terms
 
@@ -9,11 +8,14 @@ console.log('search loaded');
 function showResponse(response){
     var responseString = JSON.stringify(response, '', 2);
 
+    console.log(response);
+
     // document.getElementById('response').innerHTML += responseString;
     for (result in response.items){
 
         // console.log(response.items[result].snippet.title)
         var searchItem = document.createElement('div');
+
         var itemTitle = document.createElement('h4');
         itemTitle.innerHTML = response.items[result].snippet.title.substring(0,50);
 
@@ -39,20 +41,45 @@ function showResponse(response){
 }
 
 function queueSong (songInfo){
-    if (songInfo[1].alt == 'undefined'){
-        console.error('Video has no ID and will not be queued');
-    } else {
-        // console.log(songInfo[1].alt);
-        console.log("the song name is:" + songInfo[2].innerHTML);
-        console.log("the song thumbnail is:" + songInfo[0].src);
 
-        var queueItem = document.createElement('div');
+  console.log(songInfo);
+
+    if (songInfo[1].alt == 'undefined'){
+        console.error('Song has no ID and will not be queued');
+
+        var errorItem = document.createElement('div');
 
         var itemTitle = document.createElement('h4');
         itemTitle.innerHTML = songInfo[2].innerHTML;
 
+        var noId = document.createElement('p');
+        noId.innerHTML = "This song has no ID and cannot be played!";
+
+        $('#chat').append(errorItem);
+        errorItem.appendChild(itemTitle);
+        errorItem.appendChild(noId);
+
+    } else {
+        // console.log(songInfo[1].alt);
+        console.log(songInfo);
+        console.log("the song name is:" + songInfo[2].innerHTML);
+        console.log("the song ID is:" + songInfo[1].alt);
+        console.log("the song thumbnail is:" + songInfo[0].src);
+
+        $('#chat').empty();
+
+        var songMetaData = {};
+        songMetaData.imgSrc = songInfo[0].src;
+        songMetaData.songId = songInfo[1].alt;
+        songMetaData.title  = songInfo[2].innerHTML;
+
+        var queueItem = document.createElement('div');
+
+        var itemTitle = document.createElement('h4');
+        itemTitle.innerHTML = songMetaData.title;
+
         var itemThumbnail = document.createElement('img');
-        itemThumbnail.src = songInfo[0].src;
+        itemThumbnail.src = songMetaData.imgSrc;
 
         var itemButtonPlus = document.createElement('img');
         itemButtonPlus.src = '/img/sign.svg',
@@ -65,9 +92,8 @@ function queueSong (songInfo){
         var score = document.createElement('p');
         score.innerHTML = "xx ballots";
 
-        queueItem.id = songInfo[1].alt;
-
-
+        // queueItem.id = songInfo[1].alt;
+        queueItem.id = songMetaData.songId;
 
         $('#queue').append(queueItem);
         queueItem.appendChild(itemThumbnail);
@@ -76,56 +102,22 @@ function queueSong (songInfo){
         queueItem.appendChild(itemButtonPlus);
         queueItem.appendChild(score);
 
-
         var c = $(queueItem).clone(true);
 
         $('#playback-bar').append(c);
         queueItem.appendChild(itemThumbnail);
         queueItem.appendChild(itemTitle);
 
-        checkQueue();
 
-        socket.emit('request', songInfo[0].src);
+        // checkQueue();
 
-        // loadResults();
+        // socket.emit('request', songInfo[0].src);
+        socket.emit('request', songMetaData);
+
     }
+
 }
 
-var fs = require('fs');
-var fileList = "";
-var playList = [];
-
-
-// Load and combine all the files as a giant one
-function loadResults() {
-
-      fileList = songInfo;
-        // console.log(fileList[0]);
-        for (var i = 0, i < 2; i+2) {
-            //This loop will read through all of the elements of an array
-            var myFile = fs.readFileSync(songInfo[i] );
-            myFile = JSON.parse(songInfo);
-            playList.push(myFile);
-        }
-        // saveFile();
-        console.log(playList);
-}
-
-// Save the remain keys and their values into a new JSON file
-function saveFile() {
-      // console.log(voterResults);
-      var data = JSON.stringify(playList);
-
-      //Write data to a file
-      fs.writeFile('schedule/playList.json', data, function (err) {
-          if (err) {
-          console.log(err.message);
-          return;
-          }
-          // console.log('Saved the ' + voterResults[0].name + ' profile.');
-          console.log('Saved the new voterResults profile.');
-      });
-}
 
 // Called automatically when JavaScript client library is loaded.
 function onClientLoad(){
@@ -161,7 +153,7 @@ function search(){
 
 // Called automatically with the response of the YouTube API request.
 function onSearchResponse(response){
-	   showResponse(response);
+       showResponse(response);
 }
 
 var socket = io();
