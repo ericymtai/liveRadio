@@ -1,14 +1,21 @@
+var player;
+var iframeReady = false;
+var dataReady = false;
+var socket = io();
+var albumArt = $('#album-art');
+var searchField = $('#search-field');
+
 
 // Your use of the YouTube API must comply with the Terms of Service:
 // https://developers.google.com/youtube/terms
 
-console.log('search loaded');
+// console.log('search loaded');
 
 // Helper function to display JavaScript value on HTML page.
 function showResponse(response){
     var responseString = JSON.stringify(response, '', 2);
 
-    console.log(response);
+    // console.log(response);
 
     // document.getElementById('response').innerHTML += responseString;
     for (result in response.items){
@@ -60,18 +67,18 @@ function queueSong (songInfo){
         errorItem.appendChild(noId);
 
     } else {
-        // console.log(songInfo[1].alt);
-        console.log(songInfo);
-        console.log("the song name is:" + songInfo[2].innerHTML);
-        console.log("the song ID is:" + songInfo[1].alt);
-        console.log("the song thumbnail is:" + songInfo[0].src);
+        //console.log(songInfo);
+        //console.log("the song name is: " + songInfo[2].innerHTML);
+        //console.log("the song ID is: " + songInfo[1].alt);
+        //console.log("the song thumbnail is: " + songInfo[0].src);
 
         $('#chat').empty();
 
-        var songMetaData = {};
-        songMetaData.imgSrc = songInfo[0].src;
-        songMetaData.songId = songInfo[1].alt;
-        songMetaData.title  = songInfo[2].innerHTML;
+        var songMetaData = {
+            imgSrc: songInfo[0].src
+          , songId: songInfo[1].alt
+          ,  title: songInfo[2].innerHTML
+        };
 
         var queueItem = document.createElement('div');
 
@@ -92,7 +99,6 @@ function queueSong (songInfo){
         var score = document.createElement('p');
         score.innerHTML = "xx ballots";
 
-        // queueItem.id = songInfo[1].alt;
         queueItem.id = songMetaData.songId;
 
         $('#queue').append(queueItem);
@@ -108,14 +114,11 @@ function queueSong (songInfo){
         queueItem.appendChild(itemThumbnail);
         queueItem.appendChild(itemTitle);
 
-
-        // checkQueue();
+        checkQueue();
 
         // socket.emit('request', songInfo[0].src);
         socket.emit('request', songMetaData);
-
     }
-
 }
 
 
@@ -129,13 +132,13 @@ function onYouTubeApiLoad(){
     // This API key is intended for use only in this lesson.
     // See http://goo.gl/PdPA1 to get a key for your own applications.
     gapi.client.setApiKey('AIzaSyAAPxhFYK8tdg7CUHBKKVZ26qDg6IgojgE');
-    console.log('api loaded');
-    // search();
+    // console.log('api loaded');
     dataReady = true;
     if (iframeReady == true && dataReady == true){
         createPlayer();
     }
 }
+
 
 function search(){
     $('#search-container').empty();
@@ -145,7 +148,6 @@ function search(){
         q: q,
         part: 'snippet'
     });
-
     // Send the request to the API server,
     // and invoke onSearchRepsonse() with the response.
     request.execute(onSearchResponse);
@@ -156,9 +158,76 @@ function onSearchResponse(response){
        showResponse(response);
 }
 
-var socket = io();
-var albumArt = $('#album-art');
-var searchField = $('#search-field');
+function onYouTubeIframeAPIReady() {
+    iframeReady = true;
+    if (iframeReady == true && dataReady == true){
+        createPlayer();
+    } else {
+        console.warn(iframeReady + ', ' + dataReady);
+    }
+}
+
+function createPlayer(){
+    player = new YT.Player('video-placeholder', {
+        width: 600,
+        height: 400,
+        // videoId: '217JOBWTolg',
+        playerVars: {
+            color: 'white'
+        },
+        events: {
+            onReady: initialize()
+        }
+    });
+}
+
+function initialize(){
+  setTimeout(function(){
+      // console.log(player);
+      player.playVideo();
+  }, 3500);
+}
+
+function checkQueue (){
+    setTimeout(function(){
+        var current;
+        // console.log('checking queue');
+        // console.log($('#queue').children()[0].id);
+
+        if (player.getCurrentTime() >= (player.getDuration() - 5)){
+            current = $('#queue').children()[0];
+            console.warn($('#queue').children()[0]);
+            player.cueVideoById(current.id);
+            setTimeout(function(){
+                if ($('#queue').children()[0].id == current.id) {
+                  current.remove();
+                }
+            }, 2500)
+            player.playVideo();
+            setTimeout(function(){
+                swap();
+            },100)
+        } else {
+            console.log(player.getCurrentTime() + ', ' + player.getDuration());
+        }
+        checkQueue();
+    }, 2500)
+}
+
+
+function swap (){
+    $('#record-container').removeClass('spin');
+    $('#record-container').addClass('swap');
+    setTimeout(function() {
+        $('#record-container').removeClass('swap');
+        $('#record-container').addClass('spin');
+    }, 4000);
+}
+
+function skip (){
+    player.seekTo(player.getDuration - 5);
+}
+
 
 $("form").on('submit', function (e) {
     search();
@@ -166,28 +235,3 @@ $("form").on('submit', function (e) {
     //stop page refresh
     e.preventDefault();
 });
-
-function onYouTubeIframeAPIReady(){
-    if (iframeReady == true && dataReady == true){
-        player = new YT.Player('video-placeholder', {
-            width: 600,
-            height: 400,
-            videoId: 'Xa0Q0J5tOP0',
-            playerVars: {
-                color: 'white',
-                playlist: 'taJ60kskkns,FG0fTKAqZ5g'
-            },
-            events: {
-                onReady: initialize()
-            }
-        });
-    }
-}
-
-function createPlayer(){
-
-}
-
-function initialize(){
-    player.playVideo();
-}
