@@ -1,23 +1,23 @@
 var player;
-var iframeReady = false;
-var dataReady = false;
+// var iframeReady = false;
+// var dataReady = false;
 var socket = io();
 var albumArt = $('#album-art');
 var searchField = $('#search-field');
 
+// Set the ballot variables to zero before getting started
+var voteBallots = 0;
+var ballot = 0;
 
 // Your use of the YouTube API must comply with the Terms of Service:
 // https://developers.google.com/youtube/terms
-
-// console.log('search loaded');
-
-// Helper function to display JavaScript value on HTML page.
+// Display search results on search field when user ehters.
 function showResponse(response){
-    var responseString = JSON.stringify(response, '', 2);
+    // Convert the data to strings from YouTube API
+    JSON.stringify(response, '', 2);
 
     // console.log(response);
 
-    // document.getElementById('response').innerHTML += responseString;
     for (result in response.items){
 
         // console.log(response.items[result].snippet.title)
@@ -26,7 +26,6 @@ function showResponse(response){
         var itemTitle = document.createElement('h4');
         itemTitle.innerHTML = response.items[result].snippet.title.substring(0,50);
 
-        // var itemDescription = document.createElement('h4');
         var itemThumbnail = document.createElement('img');
         itemThumbnail.src = response.items[result].snippet.thumbnails.high.url;
 
@@ -44,13 +43,13 @@ function showResponse(response){
             queueSong(this.parentNode.childNodes);
         };
     }
-    // console.log(response.items);
 }
 
-function queueSong (songInfo){
+// Disply results when user clicks the song the user like
+function queueSong(songInfo){
+    // console.log(songInfo);
 
-  console.log(songInfo);
-
+    // Display no ID message if no record ID is found, else display thumbnail and title
     if (songInfo[1].alt == 'undefined'){
         console.error('Song has no ID and will not be queued');
 
@@ -72,14 +71,18 @@ function queueSong (songInfo){
         //console.log("the song ID is: " + songInfo[1].alt);
         //console.log("the song thumbnail is: " + songInfo[0].src);
 
+        // Clear the no Id message when a record ID is found
         $('#chat').empty();
 
+        // Set key names and their values from YouTube data for saving JSON file purpose
         var songMetaData = {
             imgSrc: songInfo[0].src
           , songId: songInfo[1].alt
           ,  title: songInfo[2].innerHTML
+          ,  vote: ballot ++
         };
 
+        // Display the search results and an add button to vote section
         var queueItem = document.createElement('div');
 
         var itemTitle = document.createElement('h4');
@@ -92,58 +95,58 @@ function queueSong (songInfo){
         itemButtonPlus.src = '/img/sign.svg',
         itemButtonPlus.className += 'Plus-button';
 
-        var itemButtonMinus = document.createElement('img');
-        itemButtonMinus.src = '/img/signMinus.svg'
-        itemButtonMinus.className += 'Minus-button';
+        // var itemButtonMinus = document.createElement('img');
+        // itemButtonMinus.src = '/img/signMinus.svg'
+        // itemButtonMinus.className += 'Minus-button';
+
+        voteBallots++;
 
         var score = document.createElement('p');
-        score.innerHTML = "xx ballots";
+        score.innerHTML = voteBallots +  " ballots";
 
         queueItem.id = songMetaData.songId;
 
         $('#queue').append(queueItem);
         queueItem.appendChild(itemThumbnail);
         queueItem.appendChild(itemTitle);
-        queueItem.appendChild(itemButtonMinus);
+        // queueItem.appendChild(itemButtonMinus);
         queueItem.appendChild(itemButtonPlus);
         queueItem.appendChild(score);
 
-        var c = $(queueItem).clone(true);
-
-        $('#playback-bar').append(c);
-        queueItem.appendChild(itemThumbnail);
-        queueItem.appendChild(itemTitle);
+        // var c = $(queueItem).clone(true);
+        //
+        // $('#playback-bar').append(c);
+        // queueItem.appendChild(itemThumbnail);
+        // queueItem.appendChild(itemTitle);
 
         checkQueue();
-
-        // socket.emit('request', songInfo[0].src);
         socket.emit('request', songMetaData);
     }
 }
-
 
 // Called automatically when JavaScript client library is loaded.
 function onClientLoad(){
     gapi.client.load('youtube', 'v3', onYouTubeApiLoad);
 }
 
-// Called automatically when YouTube API interface is loaded (see line 9).
+// Called automatically when YouTube API interface is loaded.
 function onYouTubeApiLoad(){
     // This API key is intended for use only in this lesson.
     // See http://goo.gl/PdPA1 to get a key for your own applications.
     gapi.client.setApiKey('AIzaSyAAPxhFYK8tdg7CUHBKKVZ26qDg6IgojgE');
-    // console.log('api loaded');
-    dataReady = true;
-    if (iframeReady == true && dataReady == true){
-        createPlayer();
-    }
+
+    createPlayer();
 }
 
 
+// Use the JavaScript client library to create a search.list() API call.
 function search(){
+    // Clear ssearch results by typing in a new search value
     $('#search-container').empty();
-    // Use the JavaScript client library to create a search.list() API call.
+
+    // Search the text field value that user types in
     var q = $('#search-field').val();
+
     var request = gapi.client.youtube.search.list({
         q: q,
         part: 'snippet'
@@ -158,37 +161,28 @@ function onSearchResponse(response){
        showResponse(response);
 }
 
-function onYouTubeIframeAPIReady() {
-    iframeReady = true;
-    if (iframeReady == true && dataReady == true){
-        createPlayer();
-    } else {
-        console.warn(iframeReady + ', ' + dataReady);
-    }
-}
-
+// Create a player
 function createPlayer(){
     player = new YT.Player('video-placeholder', {
-        width: 600,
-        height: 400,
-        // videoId: '217JOBWTolg',
-        playerVars: {
-            color: 'white'
-        },
         events: {
-            onReady: initialize()
         }
     });
 }
 
-function initialize(){
-  setTimeout(function(){
-      // console.log(player);
-      player.playVideo();
-  }, 3500);
+// Read data from the playList file inside schedule folder
+function readScheduleFromFile(){
+    socket.on('readSchedule',  function(scheduleResults){
+      console.log(scheduleResults);
+    });
 }
+    readScheduleFromFile();
 
-function checkQueue (){
+
+
+
+
+// check the queue to find songs to play and animate the record player
+function checkQueue(){
     setTimeout(function(){
         var current;
         // console.log('checking queue');
@@ -202,7 +196,7 @@ function checkQueue (){
                 if ($('#queue').children()[0].id == current.id) {
                   current.remove();
                 }
-            }, 2500)
+            },1000)
             player.playVideo();
             setTimeout(function(){
                 swap();
@@ -211,24 +205,26 @@ function checkQueue (){
             console.log(player.getCurrentTime() + ', ' + player.getDuration());
         }
         checkQueue();
-    }, 2500)
+    }, 4500)
 }
 
-
-function swap (){
+// Animate the main section record palyer
+function swap(){
     $('#record-container').removeClass('spin');
     $('#record-container').addClass('swap');
+    $('#needle').addClass('needleIn');
     setTimeout(function() {
         $('#record-container').removeClass('swap');
         $('#record-container').addClass('spin');
-    }, 4000);
+        $('#needle').removeClass('needleOIn');
+    }, 1400);
 }
 
-function skip (){
+function skip(){
     player.seekTo(player.getDuration - 5);
 }
 
-
+// Prevent the form submit default
 $("form").on('submit', function (e) {
     search();
     searchField.val('');
