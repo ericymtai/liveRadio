@@ -20,22 +20,17 @@ var playlist = [];
 
 io.on('connection', function (socket) {
     console.log('a user connected');
+    //Emit the playlist to a user when they connect to the server
+    io.emit('clientHandshake', playlist);
+    // console.log(playlist);
 
-    socket.on('request', function (songMetaData) {
-        io.emit('request', songMetaData);
+    //This socket receives new song requests from the connected clients
+    socket.on('songRequest', function (songMetaData) {
+        // This emit sends the new song to all connected clients
+        io.emit('updatePlaylist', songMetaData);
         console.log(songMetaData);
         loadResults(songMetaData);
     });
-
-
-    // socket.on('readSchedule', function ({scheduleResults}) {
-    //     socket.broadcast.emit('readSchedule', {scheduleResults});
-        // io.emit('readSchedule', scheduleResults);
-        // function checkProperty() {
-        //   console.log(scheduleResults[0]);
-        // }
-    //     console.log(scheduleResults[0]);
-    // });
 
     socket.on('disconnect', function () {
         console.log('user disconnected');
@@ -48,15 +43,15 @@ server.listen(process.env.PORT || 8000, process.env.IP || "0.0.0.0", function ()
     console.log("Our server is listening at", addr.address + ":" + addr.port);
 });
 
-
+// From here to line 86, I do not understand why you have this code?
 fs.readdir('./schedule', function (err, files) {
-      if (err) {
+    if (err) {
         console.log(err);
         return;
-      }
-      scheduleList = files;
-      // console.log(scheduleList);
-      ParseJSON();
+    }
+    scheduleList = files;
+    // console.log(scheduleList);
+    ParseJSON();
 });
 
 // Load the data from the playList.json
@@ -67,42 +62,51 @@ function ParseJSON() {
         var scheduleFile = fs.readFileSync('./schedule/' + scheduleList[i] + '', 'utf-8');
         var json = checkJSON(scheduleFile);
         if (json != undefined) {
-            scheduleResults.push(json);
+            playlist = json;
         }
     }
-    checkProperty();
+    // checkProperty();
 }
-// console.log(scheduleResults[0]);
+
 
 // Try to find out which file is well JSON formated, if not pass throught and display error message
 function checkJSON(json) {
-  var data;
-  try {
-    data = JSON.parse(json)
-  } catch (e) {
-    // console.log(e);
-  }
-  return data;
+    var data;
+    try {
+        data = JSON.parse(json)
+    } catch (e) {
+        // console.log(e);
+    }
+    console.log(data);
+    return data;
 }
 
-//
+// Check all the key values one by one inside the voterResults, if it matchs, then delete it
 function checkProperty() {
-  // console.log(scheduleResults[0]);
+    // console.log(scheduleResults[0][0]);
+    playlist.push(scheduleResults);
+
 }
 
 
 
 // Load and combine all the files as a giant one
 function loadResults(songMetaData) {
-        playlist.push(songMetaData);
-        saveFile();
+    playlist.push(songMetaData);
+    // Check here to see what
+    console.log(playlist);
+    saveFile();
 }
 
 // Save the remain keys and their values into a new JSON file
 function saveFile() {
     // console.log(playList);
     var data = JSON.stringify(playlist);
-    //console.log(data);
+
+
+    console.log("The data being weritting is" + data);
+
+
     //Write data to a file
     fs.writeFile('userSelect/score.json', data, function (err) {
         if (err) {
