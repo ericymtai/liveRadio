@@ -120,7 +120,7 @@ function queueSong(songInfo) {
         // queueItem.appendChild(itemThumbnail);
         // queueItem.appendChild(itemTitle);
 
-        checkQueue();
+        // checkQueue();
         socket.emit('songRequest', songMetaData);
     }
 }
@@ -163,37 +163,69 @@ function onSearchResponse(response) {
 
 // Create a player
 function createPlayer() {
-    player = new YT.Player('video-placeholder', {
-        events: {}
+    player = new YT.Player('video-placeholder', {   // 3.0 ms
+        events: {
+          'onReady': checkQueue,
+          'onStateChange': onStateChange
+        }
     });
+}
+
+function onStateChange(e){
+  console.log(e.data);
+  if(e.data == YT.PlayerState.ENDED){
+    checkQueue();
+  }
+}
+
+function getId(){
+  var current = $('#playback-bar').children()[0];
+  var id = current.id;
+  console.warn(id);
+  current.remove();
+  if(id == "current-title"){
+    id = getId();
+  }
+  return id;
 }
 
 // check the queue to find songs to play and animate the record player
 function checkQueue() {
-    setTimeout(function () {
-        var current;
-        // console.log('checking queue');
-        // console.log($('#queue').children()[0].id);
 
-        if (player.getCurrentTime() >= (player.getDuration() - 5)) {
-            current = $('#playback-bar').children()[0];
-            console.warn($('#playback-bar').children()[0]);
-            player.cueVideoById(current.id);
-            setTimeout(function () {
-                if ($('#playback-bar').children()[0].id == current.id) {
-                    current.remove();
-                }
-            }, 1000)
-            player.playVideo();
-            setTimeout(function () {
-                swap();
-            }, 100)
-        } else {
-            console.log(player.getCurrentTime() + ', ' + player.getDuration());
-        }
-        checkQueue();
-        // populatePlaylist();
-    }, 4500)
+  player.cueVideoById(getId());
+  player.playVideo();
+  setTimeout(function () {
+       swap();
+  }, 100);
+
+//  if (player.getDuration() == 0 ){
+    // setTimeout(function () {
+    //     var current;
+    //
+    //      console.log(player.getDuration());
+    //     console.log($('#playback-bar').children()[0].id);
+
+        // if ( player.getCurrentTime() >= (player.getDuration() - 25)) {
+            // current = $('#playback-bar').children()[0];
+            // console.warn($('#playback-bar').children()[0]);
+            // player.cueVideoById(current.id);
+            // setTimeout(function () {
+            //     if ($('#playback-bar').children()[0].id == current.id) {
+            //         current.remove();
+            //     }
+            // }, 2000)
+            // player.playVideo();
+            // setTimeout(function () {
+            //     swap();
+            // }, 100)
+    //     } else {
+    //         console.log(player.getCurrentTime() + ', ' + player.getDuration());
+    //     }
+    //     checkQueue();
+    // }, 4500)
+
+  //}
+
 }
 
 // Animate the main section record palyer
@@ -204,7 +236,7 @@ function swap() {
     setTimeout(function () {
         $('#record-container').removeClass('swap');
         $('#record-container').addClass('spin');
-        $('#needle').removeClass('needleOIn');
+        // $('#needle').removeClass('needleOIn');
     }, 1400);
 }
 
@@ -220,9 +252,6 @@ $("form").on('submit', function (e) {
     e.preventDefault();
 });
 
-
-
-
 // This socket listens for the initial handshake between the client / server. It receives the current playlist from the server
 socket.on('clientHandshake', function (playlist) {
     console.log("Connected to server, recieved the playlist", playlist);
@@ -230,39 +259,38 @@ socket.on('clientHandshake', function (playlist) {
       JSON.stringify(playlist);
 
       // console.log(JSON.stringify(playlist));
-
       // console.log(playlist[0]);
 
           // Create a function to populate the playlist on in the browser window
           function populatePlaylist() {
 
-            for (i in playlist) {
-                // Display the search results and an add button to vote section
-                var playlistContainer = document.createElement('div');
+              for (i in playlist) {
+                  // Display the search results and an add button to vote section
+                  var playlistContainer = document.createElement('div');
+                  playlistContainer.className = "current";
 
-                var playlistTitle = document.createElement('h4');
-                playlistTitle.innerHTML = playlist[i].title;
+                  var playlistTitle = document.createElement('h4');
+                  playlistTitle.innerHTML = playlist[i].title;
 
-                var playlistThumbnail = document.createElement('img');
-                playlistThumbnail.src = playlist[i].imgSrc;
+                  var playlistThumbnail = document.createElement('img');
+                  playlistThumbnail.src = playlist[i].imgSrc;
 
+                  $('#playback-bar').append(playlistContainer);
+                  playlistContainer.appendChild(playlistThumbnail);
+                  playlistContainer.appendChild(playlistTitle);
 
-                $('#playback-bar').append(playlistContainer);
-                playlistContainer.appendChild(playlistThumbnail);
-                playlistContainer.appendChild(playlistTitle);
+                  playlistContainer.id = playlist[i].songId;
 
-                playlistContainer.id = playlist[i].songId;
-
-                // console.log(playlistContainer.id);
-            }
+                  // console.log(playlistContainer.id);
+              }
         }
         populatePlaylist();
-        checkQueue();
+        //checkQueue(); 0.6ms
 });
 
 // This socket listens for messages from the server...knows when a new song has been added
-socket.on('updatePlaylist', function (songMetaData) {
-    console.log("New Song Added");
-    console.log(songMetaData);
-    // Create a function here to update the playlist in the browser window
-});
+// socket.on('updatePlaylist', function (songMetaData) {
+//     console.log("New Song Added");
+//     console.log(songMetaData);
+//     // Create a function here to update the playlist in the browser window
+// });

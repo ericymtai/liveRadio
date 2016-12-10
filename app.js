@@ -14,7 +14,7 @@ router.use(express.static(path.resolve(__dirname, 'client')));
 // Variables to hold the messages and the sockets
 var sockets = [];
 var scheduleList = "";
-// var fileList = "";
+
 var scheduleResults = [];
 var playlist = [];
 
@@ -28,7 +28,7 @@ io.on('connection', function (socket) {
     socket.on('songRequest', function (songMetaData) {
         // This emit sends the new song to all connected clients
         io.emit('updatePlaylist', songMetaData);
-        console.log(songMetaData);
+        // console.log(songMetaData);
         loadResults(songMetaData);
     });
 
@@ -65,7 +65,6 @@ function ParseJSON() {
             playlist = json;
         }
     }
-    // checkProperty();
 }
 
 
@@ -81,18 +80,11 @@ function checkJSON(json) {
     return data;
 }
 
-// Check all the key values one by one inside the voterResults, if it matchs, then delete it
-function checkProperty() {
-    // console.log(scheduleResults[0][0]);
-    playlist.push(scheduleResults);
-
-}
-
 
 
 // Load and combine all the files as a giant one
 function loadResults(songMetaData) {
-    playlist.push(songMetaData);
+    playlist.unshift(songMetaData);
     // Check here to see what
     console.log(playlist);
     saveFile();
@@ -108,7 +100,7 @@ function saveFile() {
 
 
     //Write data to a file
-    fs.writeFile('userSelect/score.json', data, function (err) {
+    fs.writeFile('schedule/playList.json', data, function (err) {
         if (err) {
             console.log(err.message);
             return;
