@@ -55,7 +55,7 @@ function queueSong(songInfo) {
 
         var itemTitle = document.createElement('h4');
         itemTitle.innerHTML = songInfo[2].innerHTML;
-
+z
         var noId = document.createElement('p');
         noId.innerHTML = "This song has no ID and cannot be played!";
 
@@ -66,6 +66,9 @@ function queueSong(songInfo) {
         errorItem.appendChild(noId);
 
     } else {
+
+        $('#search-container').empty();
+
         //console.log(songInfo);
         //console.log("the song name is: " + songInfo[2].innerHTML);
         //console.log("the song ID is: " + songInfo[1].alt);
@@ -171,9 +174,21 @@ function createPlayer() {
     });
 }
 
+
+
+
+// socket.on('removePlaylist', function (songMetaData) {
+//     console.log("Playlist Song removed");
+//     console.log(songMetaData);
+//     // Create a function here to update the playlist in the browser window
+//
+// });
+
 function onStateChange(e){
-  console.log(e.data);
+  // console.log(e.data);
   if(e.data == YT.PlayerState.ENDED){
+    socket.emit('removeRequest', e);
+    console.log("play end:" , e);
     checkQueue();
   }
 }
@@ -196,35 +211,7 @@ function checkQueue() {
   player.playVideo();
   setTimeout(function () {
        swap();
-  }, 100);
-
-//  if (player.getDuration() == 0 ){
-    // setTimeout(function () {
-    //     var current;
-    //
-    //      console.log(player.getDuration());
-    //     console.log($('#playback-bar').children()[0].id);
-
-        // if ( player.getCurrentTime() >= (player.getDuration() - 25)) {
-            // current = $('#playback-bar').children()[0];
-            // console.warn($('#playback-bar').children()[0]);
-            // player.cueVideoById(current.id);
-            // setTimeout(function () {
-            //     if ($('#playback-bar').children()[0].id == current.id) {
-            //         current.remove();
-            //     }
-            // }, 2000)
-            // player.playVideo();
-            // setTimeout(function () {
-            //     swap();
-            // }, 100)
-    //     } else {
-    //         console.log(player.getCurrentTime() + ', ' + player.getDuration());
-    //     }
-    //     checkQueue();
-    // }, 4500)
-
-  //}
+  }, 1000);
 
 }
 
@@ -236,7 +223,7 @@ function swap() {
     setTimeout(function () {
         $('#record-container').removeClass('swap');
         $('#record-container').addClass('spin');
-        // $('#needle').removeClass('needleOIn');
+
     }, 1400);
 }
 
@@ -252,45 +239,110 @@ $("form").on('submit', function (e) {
     e.preventDefault();
 });
 
+
 // This socket listens for the initial handshake between the client / server. It receives the current playlist from the server
 socket.on('clientHandshake', function (playlist) {
-    console.log("Connected to server, recieved the playlist", playlist);
-
-      JSON.stringify(playlist);
+    // console.log("Connected to server, recieved the playlist", playlist);
+      // JSON.stringify(playlist);
 
       // console.log(JSON.stringify(playlist));
       // console.log(playlist[0]);
+      // Create a function to populate the playlist on in the browser window
+      function populatePlaylist() {
 
-          // Create a function to populate the playlist on in the browser window
-          function populatePlaylist() {
+          for (i in playlist) {
+              // Display the search results and an add button to vote section
+              var playlistContainer = document.createElement('div');
+              playlistContainer.className = "current";
 
-              for (i in playlist) {
-                  // Display the search results and an add button to vote section
-                  var playlistContainer = document.createElement('div');
-                  playlistContainer.className = "current";
+              var playlistTitle = document.createElement('h4');
+              playlistTitle.innerHTML = playlist[i].title;
 
-                  var playlistTitle = document.createElement('h4');
-                  playlistTitle.innerHTML = playlist[i].title;
+              var playlistThumbnail = document.createElement('img');
+              playlistThumbnail.src = playlist[i].imgSrc;
 
-                  var playlistThumbnail = document.createElement('img');
-                  playlistThumbnail.src = playlist[i].imgSrc;
+              $('#playback-bar').append(playlistContainer);
+              playlistContainer.append(playlistThumbnail);
+              playlistContainer.append(playlistTitle);
 
-                  $('#playback-bar').append(playlistContainer);
-                  playlistContainer.appendChild(playlistThumbnail);
-                  playlistContainer.appendChild(playlistTitle);
+              playlistContainer.id = playlist[i].songId;
 
-                  playlistContainer.id = playlist[i].songId;
+              // console.log(playlistContainer.id);
+          }
+      }
 
-                  // console.log(playlistContainer.id);
-              }
-        }
         populatePlaylist();
         //checkQueue(); 0.6ms
 });
 
+
 // This socket listens for messages from the server...knows when a new song has been added
-// socket.on('updatePlaylist', function (songMetaData) {
-//     console.log("New Song Added");
-//     console.log(songMetaData);
-//     // Create a function here to update the playlist in the browser window
-// });
+socket.on('updatePlaylist', function (songMetaData) {
+    console.log("New Song Added");
+    // alert(songMetaData);
+// console.log(songMetaData.title);
+    //make a variable that is a div that holds the song info
+    // var newSongInfo = songMetaData;
+    // $( "#playback-bar" ).append( "<p>"+ songMetaData.title +"</p>" );
+    // $( "#playback-bar" ).append( "<h2>"+ songMetaData.title +"</h2>" );
+    // $( "#playback-bar" ).append("<div>").appendChild("<img src='" + songMetaData.imgSrc +"'</img>" );
+
+
+    // Display the search results and an add button to vote section
+    var newContainer = document.createElement('div');
+
+    var newTitle = document.createElement('h4');
+    newTitle.innerHTML = songMetaData.title;
+
+    var newThumbnail = document.createElement('img');
+    newThumbnail.src = songMetaData.imgSrc;
+
+    $('#playback-bar').append(newContainer);
+    newContainer.appendChild(newThumbnail);
+    newContainer.appendChild(newTitle);
+    newContainer.id = songMetaData.songId;
+    // JSON.stringify(songMetaData);
+    // console.log(JSON.stringify(songMetaData));
+
+    // Create a function here to update the playlist in the browser window
+    /*function replaceCurrentPlaylist() {
+      // function replaceCurrentPlaylist(arr, parent) {
+
+      // if (!arr) return;
+
+        $('#playback-bar').empty();
+
+        for ( i  in songMetaData) {
+
+          // songMetaData[arr[i].key] = parent;
+          // recurse(arr[i].children, arr[i]);
+
+
+          console.log("This ia added item", i);
+            // Display the search results and an add button to vote section
+            var playlistContainer = document.createElement('div');
+            playlistContainer.className = "current";
+
+            var playlistTitle = document.createElement('h4');
+            playlistTitle.innerHTML = songMetaData[i];
+
+            var playlistThumbnail = document.createElement('img');
+            playlistThumbnail.src = songMetaData[i];
+
+            $('#playback-bar').append(playlistContainer);
+            playlistContainer.appendChild(playlistThumbnail);
+            playlistContainer.appendChild(playlistTitle);
+
+            playlistContainer.id = songMetaData[i].songId;
+
+            // console.log(playlistContainer.id);
+        }
+    }
+    replaceCurrentPlaylist();
+*/
+});
+
+
+function addToBottom(){
+
+}

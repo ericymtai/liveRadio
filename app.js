@@ -32,6 +32,14 @@ io.on('connection', function (socket) {
         loadResults(songMetaData);
     });
 
+    //This socket remove a song from the playlist
+    socket.on('removeRequest', function (songMetaData) {
+        // This emit sends the new song to all connected clients
+        io.emit('removePlaylist', songMetaData);
+        // console.log("Remove emit:", songMetaData);
+        removeResults(songMetaData);
+    });
+
     socket.on('disconnect', function () {
         console.log('user disconnected');
     });
@@ -76,7 +84,7 @@ function checkJSON(json) {
     } catch (e) {
         // console.log(e);
     }
-    console.log(data);
+    // console.log(data);
     return data;
 }
 
@@ -85,6 +93,14 @@ function checkJSON(json) {
 // Load and combine all the files as a giant one
 function loadResults(songMetaData) {
     playlist.unshift(songMetaData);
+    // Check here to see what
+    console.log(playlist);
+    saveFile();
+}
+
+// Remove a song from the playlist after played
+function removeResults(songMetaData) {
+    playlist.shift(songMetaData);
     // Check here to see what
     console.log(playlist);
     saveFile();
