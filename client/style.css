@@ -5,7 +5,9 @@
 body {
     padding: 0px;
     margin: 0px;
+    height: 100%;
     background-size: cover;
+    background: #333;
 }
 main {
     position: fixed;
@@ -62,7 +64,7 @@ main {
     position: absolute;
     height: 29vh;
     top: 59vh;
-    left: 3.7vw;
+    left: 4.5vw;
     transition: all 1s ease;
     transform: rotate(-50deg);
     transform-origin: 0% 98%;
@@ -83,8 +85,8 @@ main {
     animation-play-state: running;
 }
 .needleIn {
-    animation-duration: 420s;
-    animation-name: needle-move;
+    animation-duration: 240s;
+    animation-name: needle-moveIn;
     animation-timing-function: linear;
     animation-play-state: running;
 }
@@ -126,16 +128,19 @@ main {
         transform: scale(1.0);
       }
 }
-@keyframes needle-move {
+@keyframes needle-moveIn {
       0% {
           transform-origin: 0% 98%;
           transform: rotate(-43deg);
       }
-      .1% {
-          transform: rotate(-30deg);
+      .6% {
+          transform: rotate(-32deg);
+      }
+      99% {
+          transform: rotate(-10deg);
       }
       100% {
-          transform: rotate(-5deg);
+          transform: rotate(-50deg);
       }
 }
 @keyframes needle-moveOut {
@@ -143,7 +148,7 @@ main {
           transform: rotate(-5deg);
       }
       to {
-          transform: rotate(-45deg);
+          transform: rotate(-50deg);
       }
 }
 
@@ -171,9 +176,10 @@ aside h2 {
     color: white;
     display: block;
     background-color: #3355FF;
-    margin: 0px;
-    padding: 5px 10px 5px;
-
+    width: 67%;
+    margin: 0;
+    margin-top: .9em;
+    padding: 7px 0px 5px 15px;
 }
 aside h2 span {
     font-size: 17px;
@@ -194,11 +200,11 @@ aside p {
 }
 
 
-/* Both Vote  Chat and Search Fields */
+/* Both Vote  warning and Search Fields */
 /* The Search Results and Vote List */
 #queue div,
 #playback-bar div,
-#chat div,
+#warning div,
 #search-container div {
     background-color: #ccc;
     background: linear-gradient(#EEE, #CCC);
@@ -207,7 +213,7 @@ aside p {
     padding: 5px;
     height: calc(10vh - 10px);
     transition: all 0.5s ease;
-    overflow: hidden;
+    overflow: scroll;
 }
 #queue div {
     height: calc(12vh - 10px);
@@ -284,15 +290,34 @@ aside h4 {
 }
 
 /* Status Field */
-#chat-container h2 {
+
+#warning-container h2 {
   margin-top: 6.6em;
   padding: .5em;
+  display: none;
 }
-#chat p {
+#warning p {
   color: rgb(213, 10, 34);
   float: left;
 }
-
+#warning-container {
+  width: 20%;
+  top: 1.4em;
+  right: 0;
+  display: none;
+}
+#warning div {
+  width: 77%;
+  overflow-y: scroll;
+  min-height: calc(10vh);
+  max-height: calc(15vh);
+}
+/*#warning-container  {
+  display: block;
+  width: 50%;
+  height: 5em;
+  background: #fff;
+}*/
 /* Vote Field */
 #queue {
     overflow-y: scroll;
@@ -303,11 +328,10 @@ aside h4 {
 }
 #queue h4 {
     width: 70%;
-    /*display: inline-block;*/
 }
 
 /* Current Play List */
-#playback-bar {
+#current-head {
     min-height: 10%;
     max-height: 55%;
     width: 55%;
@@ -319,17 +343,33 @@ aside h4 {
     padding-left: 1%;
     background-color: #c4cce3;
     background: linear-gradient(#292731,#c5d3f9,#292731);
-    position: fixed;
+    position: relative;;
     top: 32.5em;
-    right: 4em;
+    left: 30em;
     z-index: 600;
+    overflow: scroll;
 }
+#playback-bar div {
+    overflow: initial;
+    margin-left: 1em;
+    width: 90%;
+  }
+#playback-bar div:nth-child(1)  {
+    background: linear-gradient(#f0cba1,#f9f2c4,#e7b975);
+    margin-top: -.5em;
+  }
+#playback-bar div:nth-child(1) h4:first-of-type::after  {
+      content: " Next play!";
+      margin-left: 1em;
+      color: red;
+    }
 #playback-bar img {
     height: 4vh;
     width: 4vh;
 }
 #playback-bar h4 {
   color: rgb(16, 48, 182);
+  text-shadow: none;
   margin-top: 1%;
 }
 #playback-bar p {
@@ -338,7 +378,6 @@ aside h4 {
 
 
 /* Others */
-
 form {
     height: 4vh;
 }
@@ -346,25 +385,59 @@ input {
     width: 100%;
     height: 100%;
 }
-/* chat */
-#chat-container {
-  width: 20%;
-  top: 1.4em;
-    right: 0;
-}
-#chat {
-    overflow-y: scroll;
-    height: 94.2%;
-}
-#chat div {
-  width: 100%;
-}
 
 
-/* Different devices size*/
-@media screen and (max-width: 1200px) {
-    #queue h4 {
-        /*display: none;*/
+
+/* Different devices' size*/
+@media screen and (min-width: 1200px) {
+  main{
+    height: 110em;
+    padding: 0 3.6em 1em 5.5em;
+    top: -15em;
+  }
+  #current-head{
+      margin-top: 0%;
+  }
+  #needle {
+    top: 36em;
+  }
+  #warning-container  {
+    width: 16%;
+    top: 13em;
+  }
+  main h1 {
+    font-size: 7em;
+    margin-top: .6em;
+    top: 2em;
+  }
+  aside {
+    margin-top: -1.3em;
+  }
+}
+/*@media screen and (min-width: 1201px) {
+  main h1 {
+    font-size: 5.5em;
+    margin-top: .6em;
+  }
+  #current-head{
+      margin-top: 0;
+  }
+}*/
+@media screen  and (max-width: 1200px) {
+    main{
+      height: 80em;
+      padding: 0 2.4em 1em 5.5em;
+    }
+    #warning-container  {
+      width: 20%;
+      margin-top: 10em;
+    }
+    #current-head{
+        margin-top: -2%;
+    }
+    main h1 {
+      font-size: 5em;
+      top: 2.1em;
     }
     aside p {
         float: left;
@@ -375,34 +448,61 @@ input {
         margin-top: 8%;
     }
 }
-@media screen and (max-width: 1120px) {
-  main h1 {
-    font-size: 4em;
-    margin-top: 1.2em;
-  }
-}
+
 @media screen and (max-width: 880px) {
   main,
-  #chat-container,
-  #playback-bar {
-    display: none;
+  #warning-container,
+  #current-head {
   }
   #background-fill {
     background: #333;
   }
-  aside:before {
-    content: "LiveRadio";
-    color: #fff;
-    font-size: 4.5em;
-    margin-left: 10%;
+  #player-container{
+    position: static;
+    width: 100%;
+    margin: -40em auto;
+    margin-left: -12%;
+    font-size: .65em;
+    background: #333;
+    visibility: hidden;
+  }
+  #main h1 {
+    position: static;
+  }
+  #search-field::-webkit-input-placeholder {
+    text-align: center;
+  }
+  #search-field:-moz-input-placeholder {
+    text-align: center;
+  }
+  #record,
+  #album-art,
+  #needle {
+    display: none;
   }
   aside {
       position:relative;
       width: 100%;
+      top: 28em;
       padding-top: 6%;
   }
   aside h2, aside h2 span {
     background-color: #3355ff;
+    font-size: 1.1em;
+    width: 100%;
+  }
+  aside h2 span {
+    font-size: .9em;
+  }
+  aside h2:first-child {
+    display: none;
+  }
+  aside h2:nth-of-type(2) {
+    text-align: center;
+    color: #eef;
+  }
+  aside input[type="text"] {
+    background: #eef;
   }
   #queue {
     margin-top: -9em;
@@ -416,19 +516,43 @@ input {
     margin-bottom: 6em;
   }
   #queue div,
-  #playback-bar div,
-  #chat div,
+  #current-head div,
+  #warning div,
   #search-container div {
     margin: 0 auto;
   }
   #queue div {
     height: calc(10vh - 10px);
     margin-top: 0;
+    display: none;
   }
   #queue div img {
     margin:  1px 0  0 3px;
   }
+  #current-head {
+    left: 0;
+    top: -13em;
+    width: 100%;
+    text-align: center;
+  }
+  #search-field  div,
+  #playback-bar div {
+      margin: auto;
+      width: 88%;
+    }
   #search-field {
       width: 100%;
+  }
+  #warning-container {
+    width: 75%;
+    top: -14em;
+    left: 0;
+    background: transparent;
+    z-index: 10;
+  }
+  #warning-container * div{
+    height: .5em;
+    border: 5px solid rgba(169, 95, 199, .9);
+    opacity: .95;
   }
 }

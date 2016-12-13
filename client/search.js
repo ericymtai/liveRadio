@@ -55,13 +55,12 @@ function queueSong(songInfo) {
 
         var itemTitle = document.createElement('h4');
         itemTitle.innerHTML = songInfo[2].innerHTML;
-z
         var noId = document.createElement('p');
         noId.innerHTML = "This song has no ID and cannot be played!";
 
-        $('#chat-container').css("display", "block");
+        $('#warning-container').css("display", "block");
 
-        $('#chat').append(errorItem);
+        $('#warning').append(errorItem);
         errorItem.appendChild(itemTitle);
         errorItem.appendChild(noId);
 
@@ -75,8 +74,8 @@ z
         //console.log("the song thumbnail is: " + songInfo[0].src);
 
         // Clear the no Id message when a record ID is found
-        $('#chat').empty();
-        $('#chat-container').css("display", "none");
+        $('#warning').empty();
+        $('#warning-container').css("display", "none");
 
         // Set key names and their values from YouTube data for saving JSON file purpose
         var songMetaData = {
@@ -103,7 +102,7 @@ z
         // itemButtonMinus.src = '/img/signMinus.svg'
         // itemButtonMinus.className += 'Minus-button';
 
-        voteBallots++;
+        voteBallots = voteBallots + 37;
 
         var score = document.createElement('p');
         score.innerHTML = voteBallots + " ballots";
