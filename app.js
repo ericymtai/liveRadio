@@ -94,7 +94,7 @@ function checkJSON(json) {
 function loadResults(songMetaData) {
     playlist.unshift(songMetaData);
     // Check here to see what
-    console.log(playlist);
+    // console.log(playlist);
     saveFile();
 }
 
@@ -102,7 +102,7 @@ function loadResults(songMetaData) {
 function removeResults(songMetaData) {
     playlist.shift(songMetaData);
     // Check here to see what
-    console.log(playlist);
+    // console.log(playlist);
     saveFile();
 }
 

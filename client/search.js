@@ -102,7 +102,7 @@ function queueSong(songInfo) {
         // itemButtonMinus.src = '/img/signMinus.svg'
         // itemButtonMinus.className += 'Minus-button';
 
-        voteBallots = voteBallots + 37;
+        voteBallots = (voteBallots + 3)*3;
 
         var score = document.createElement('p');
         score.innerHTML = voteBallots + " ballots";
@@ -124,6 +124,10 @@ function queueSong(songInfo) {
 
         // checkQueue();
         socket.emit('songRequest', songMetaData);
+
+        itemButtonPlus.onclick = function () {
+            $('#queue').empty();
+        };
     }
 }
 
@@ -189,6 +193,7 @@ function onStateChange(e){
     socket.emit('removeRequest', e);
     console.log("play end:" , e);
     checkQueue();
+
   }
 }
 
