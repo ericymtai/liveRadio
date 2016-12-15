@@ -75,7 +75,6 @@ function ParseJSON() {
     }
 }
 
-
 // Try to find out which file is well JSON formated, if not pass throught and display error message
 function checkJSON(json) {
     var data;
@@ -88,12 +87,9 @@ function checkJSON(json) {
     return data;
 }
 
-
-
 // Load and combine all the files as a giant one
 function loadResults(songMetaData) {
     playlist.unshift(songMetaData);
-    // Check here to see what
     // console.log(playlist);
     saveFile();
 }
@@ -101,7 +97,6 @@ function loadResults(songMetaData) {
 // Remove a song from the playlist after played
 function removeResults(songMetaData) {
     playlist.shift(songMetaData);
-    // Check here to see what
     // console.log(playlist);
     saveFile();
 }
@@ -111,9 +106,8 @@ function saveFile() {
     // console.log(playList);
     var data = JSON.stringify(playlist);
 
-
-    console.log("The data being weritting is" + data);
-
+    // console.log("The data being weritting is" + data);
+    console.log("The data being weritting!" );
 
     //Write data to a file
     fs.writeFile('schedule/playList.json', data, function (err) {

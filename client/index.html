@@ -3,62 +3,63 @@
 <head>
     <title>Live Radio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="stylesheet" type="text/css" href="/style.css">
     <script src="https://apis.google.com/js/client.js?onload=onClientLoad" type="text/javascript"></script>
 </head>
 
 <body>
+
+    <!-- A container for video frame -->
     <div id="video-placeholder"></div>
+
+    <!-- A container for a background colour -->
     <div id="background-fill"></div>
 
+    <!-- The sections for search form, vote result, and app elements  -->
     <aside id="queue-container">
+        <div class="nonDisplay">
+          <h2>Song List for Vote<span style="font-size:17px;">Choose your like or dislike:  </span></h2>
 
-        <h2>Song List for Vote
-        <span style="font-size:17px;">Choose your like or dislike:  </span>
-        </h2>
-        <div id="queue">
+          <!-- A vote list will show when user hits the plus button at search list -->
+          <div id="queue"></div>
         </div>
 
-        <h2>Search A Song
-        <span>You want to listen next:  </span>
-        </h2>
+        <h2>Search A Song<span>You want to listen next:</span></h2>
 
+        <!-- Input field to let user searches songs -->
         <form id="search-form">
-            <input type="text" id="search-field" id="search-field" name="search-field" placeholder="&#128269;  Song Title..." autofocus>
+            <input type="text" id="search-field" name="search-field" placeholder=" &#128269;  Song Title..." autofocus>
             <input type="submit" id="submit" value="Submit" style="display: none;">
         </form>
 
-        <div id="search-container">
-        </div>
+        <!-- A result list will show when user types in to search -->
+        <div id="search-container"></div>
     </aside>
 
-
-    <main id="player-container">
-       <h1>LiveRadio</h1>
+    <!-- The app name, record player, disc and needle -->
+    <main>
+      <h1 class="logoHead">LiveRadio</h1>
+      <div id="player-container">
         <div id="record-container">
-            <img src="/img/record.png" id="record" />
-            <img src="/img/album-art.jpeg" id="album-art" />
+            <img src="/img/record.png" alt="record" id="record" />
+            <img src="/img/album-art.jpeg" alt="album-art" id="album-art" />
         </div>
-        <img src="/img/needle.png" id="needle" />
+        <img src="/img/needle.png" alt="needle" id="needle" />
+        </div>
     </main>
 
-
-    <div id="playback-bar">
-        <h3 id="current-title">
-            Current Play List:
-        </h3>
+    <!-- A pre-scheudle playlist will display when start the app -->
+    <div id="current-head">
+      <h3>Current Play List:</h3>
+        <div id="playback-bar">
+        </div>
     </div>
 
-
-    <aside id="chat-container">
-        <h2>
-            Status
-        </h2>
-        <div id="chat">
-        </div>
+    <!-- An error message will show if no ID is found -->
+    <aside id="warning-container">
+        <h2>Status</h2>
+        <div id="warning"></div>
     </aside>
-
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
@@ -67,5 +68,4 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
 </body>
-
 </html>
